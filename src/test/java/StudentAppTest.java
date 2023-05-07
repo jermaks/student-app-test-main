@@ -12,9 +12,8 @@ import page_objects.Notifications;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
-import static constants.AllConstants.GenderConstants.MALE;
-import static constants.AllConstants.Messages.STUDENT_SUCCESSFULLY_ADDED;
-import static constants.AllConstants.Messages.WAS_ADDED_TO_THE_SYSTEM;
+import static constants.AllConstants.GenderConstants.*;
+import static constants.AllConstants.Messages.*;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static utils.ConfigHelper.getConfig;
@@ -60,6 +59,58 @@ public class StudentAppTest {
 
         notifications.getPopUpCloseButton().click();
         assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Add female student and check successful message")
+    public void addFemaleStudent() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        addStudentPage.waitAndSetValueForNameField(name);
+        addStudentPage.waitAndSetValueForEmailField(email);
+        addStudentPage.waitAndSetGender(FEMALE);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_SUCCESSFULLY_ADDED);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_ADDED_TO_THE_SYSTEM, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Add other gender student and check successful message")
+    public void addOtherStudent() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        addStudentPage.waitAndSetValueForNameField(name);
+        addStudentPage.waitAndSetValueForEmailField(email);
+        addStudentPage.waitAndSetGender(OTHER);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_SUCCESSFULLY_ADDED);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_ADDED_TO_THE_SYSTEM, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Delete first student on any page and check successful message")
+    public void deleteFirstStudentOnAnyPage() {
+        allStudentsPage.waitAndClickOnFirstStudentDeleteButtonOnAnyPage();
+        allStudentsPage.clickYesToDeleteAStudent();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_DELETED);
+    }
+
+    @Test(description = "Delete last student on any page and check successful message")
+    public void deleteLastStudentOnAnyPage() {
+        allStudentsPage.waitAndClickOnLastStudentDeleteButtonOnAnyPage();
+        allStudentsPage.clickYesToDeleteAStudent();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_DELETED);
     }
 
     @Test()

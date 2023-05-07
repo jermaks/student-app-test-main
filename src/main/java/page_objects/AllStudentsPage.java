@@ -25,9 +25,33 @@ public class AllStudentsPage {
     @FindBy(how = How.XPATH, using = "//div[@class='ant-table-title']//button")
     private WebElement addStudentButton;
 
+    @FindBy(how = How.XPATH, using = "//label[@class='ant-radio-button-wrapper css-diro6f']/span[text()='Delete']")
+    private WebElement firstStudentDeleteButtonOnPage;
+
+    @FindBy(how = How.XPATH, using = "//tr[@class='ant-table-row ant-table-row-level-0'][last()]/td[last()]/div/label/span[2]")
+    private WebElement lastStudentDeleteButtonOnPage;
+
+    @FindBy(how = How.XPATH, using = "//button[@class='ant-btn css-diro6f ant-btn-primary ant-btn-sm']/span")
+    private WebElement yesButtonToDeleteStudent;
+
     public void waitAndClickOnAddStudentButton() {
         webDriverWait.until(elementToBeClickable(addStudentButton));
         addStudentButton.click();
+    }
+
+    public void waitAndClickOnFirstStudentDeleteButtonOnAnyPage() {
+        webDriverWait.until(elementToBeClickable(firstStudentDeleteButtonOnPage));
+        firstStudentDeleteButtonOnPage.click();
+    }
+
+    public void waitAndClickOnLastStudentDeleteButtonOnAnyPage() {
+        webDriverWait.until(elementToBeClickable(lastStudentDeleteButtonOnPage));
+        lastStudentDeleteButtonOnPage.click();
+    }
+
+    public void clickYesToDeleteAStudent() {
+        webDriverWait.until(elementToBeClickable(yesButtonToDeleteStudent));
+        yesButtonToDeleteStudent.click();
     }
 
     public WebElement getAddStudentButton() {

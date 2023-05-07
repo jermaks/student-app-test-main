@@ -12,5 +12,6 @@ public class AllConstants {
     public static class Messages {
         public static final String STUDENT_SUCCESSFULLY_ADDED = "Student successfully added";
         public static final String WAS_ADDED_TO_THE_SYSTEM = "%s was added to the system";
+        public static final String STUDENT_DELETED = "Student deleted";
     }
 }
