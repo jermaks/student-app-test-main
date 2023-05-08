@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import page_objects.AddStudentPage;
 import page_objects.AllStudentsPage;
+import page_objects.EditStudentPage;
 import page_objects.Notifications;
 
 import java.lang.reflect.Method;
@@ -24,6 +25,7 @@ public class StudentAppTest {
     private AllStudentsPage allStudentsPage;
     private AddStudentPage addStudentPage;
     private Notifications notifications;
+    private EditStudentPage editStudentPage;
 
     private final Faker dataFaker = new Faker();
 
@@ -35,6 +37,7 @@ public class StudentAppTest {
         allStudentsPage = new AllStudentsPage();
         addStudentPage = new AddStudentPage();
         notifications = new Notifications();
+        editStudentPage = new EditStudentPage();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -43,8 +46,8 @@ public class StudentAppTest {
         closeDriver();
     }
 
-    @Test(description = "Add student and check successful message")
-    public void openStudentApp() {
+    @Test(description = "Add male gender student and check successful message")
+    public void addMaleGenderStudent() {
         allStudentsPage.waitAndClickOnAddStudentButton();
 
         String name = dataFaker.name().firstName();
@@ -61,8 +64,8 @@ public class StudentAppTest {
         assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
     }
 
-    @Test(description = "Add female student and check successful message")
-    public void addFemaleStudent() {
+    @Test(description = "Add female gender student and check successful message")
+    public void addFemaleGenderStudent() {
         allStudentsPage.waitAndClickOnAddStudentButton();
 
         String name = dataFaker.name().firstName();
@@ -80,7 +83,7 @@ public class StudentAppTest {
     }
 
     @Test(description = "Add other gender student and check successful message")
-    public void addOtherStudent() {
+    public void addOtherGenderStudent() {
         allStudentsPage.waitAndClickOnAddStudentButton();
 
         String name = dataFaker.name().firstName();
@@ -97,20 +100,236 @@ public class StudentAppTest {
         assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
     }
 
-    @Test(description = "Delete first student on any page and check successful message")
-    public void deleteFirstStudentOnAnyPage() {
-        allStudentsPage.waitAndClickOnFirstStudentDeleteButtonOnAnyPage();
-        allStudentsPage.clickYesToDeleteAStudent();
+    @Test(description = "Attempt to add student without name and check error message")
+    public void addStudentWithoutName() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
 
-        assertEquals(notifications.getMessageFromNotification(), STUDENT_DELETED);
+        String email = dataFaker.internet().emailAddress();
+        addStudentPage.waitAndSetValueForNameField("");
+        addStudentPage.waitAndSetValueForEmailField(email);
+        addStudentPage.waitAndSetGender(MALE);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getTextFromNameFieldErrorMessage(), NAME_FIELD_ERROR_MESSAGE);
     }
 
-    @Test(description = "Delete last student on any page and check successful message")
-    public void deleteLastStudentOnAnyPage() {
-        allStudentsPage.waitAndClickOnLastStudentDeleteButtonOnAnyPage();
+    @Test(description = "Attempt to add student without email and check error message")
+    public void addStudentWithoutEmail() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
+
+        String name = dataFaker.name().firstName();
+        addStudentPage.waitAndSetValueForNameField(name);
+        addStudentPage.waitAndSetValueForEmailField("");
+        addStudentPage.waitAndSetGender(MALE);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getTextFromEmailFieldErrorMessage(), EMAIL_FIELD_ERROR_MESSAGE);
+    }
+
+    @Test(description = "Attempt to add student without gender and check error message")
+    public void addStudentWithoutGender() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        addStudentPage.waitAndSetValueForNameField(name);
+        addStudentPage.waitAndSetValueForEmailField(email);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getTextFromGenderFieldErrorMessage(), GENDER_FIELD_ERROR_MESSAGE);
+    }
+
+    @Test(description = "Attempt to add student with incorrect email type and check error message")
+    public void addStudentWithIncorrectEmail() {
+        allStudentsPage.waitAndClickOnAddStudentButton();
+
+        String name = dataFaker.name().firstName();
+        addStudentPage.waitAndSetValueForNameField(name);
+        addStudentPage.waitAndSetValueForEmailField("incorrect.email.com");
+        addStudentPage.waitAndSetGender(MALE);
+        addStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), INCORRECT_EMAIL_TYPE_ERROR);
+        assertEquals(notifications.getDescriptionFromNotification(), VALIDATION_FAILED_400);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Delete first student and check successful message")
+    public void deleteFirstStudent() {
+        allStudentsPage.waitAndClickOnFirstStudentDeleteButton();
         allStudentsPage.clickYesToDeleteAStudent();
 
         assertEquals(notifications.getMessageFromNotification(), STUDENT_DELETED);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Delete last student on current page and check successful message")
+    public void deleteLastStudentOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentDeleteButtonOnCurrentPage();
+        allStudentsPage.clickYesToDeleteAStudent();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_DELETED);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student name and check successful message")
+    public void editFirstStudentName() {
+        allStudentsPage.waitAndClickOnFirstStudentEditButton();
+
+        String name = dataFaker.name().firstName();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit last student name on current page and check successful message")
+    public void editLastStudentNameOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentEditButtonOnCurrentPage();
+
+        String name = dataFaker.name().firstName();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student email and check successful message")
+    public void editFirstStudentEmail() {
+        allStudentsPage.waitAndClickOnFirstStudentEditButton();
+
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit last student email on current page and check successful message")
+    public void editLastStudentEmailOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentEditButtonOnCurrentPage();
+
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student gender to other and check successful message")
+    public void editFirstStudentGenderToOther() {
+        allStudentsPage.waitAndClickOnFirstStudentEditButton();
+
+        editStudentPage.waitAndEditGender(OTHER);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit last student gender to other on current page and check successful message")
+    public void editLastStudentGenderToOtherOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentEditButtonOnCurrentPage();
+
+        editStudentPage.waitAndEditGender(OTHER);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student name and email and check successful message")
+    public void editFirstStudentNameAndEmail() {
+        allStudentsPage.waitAndClickOnFirstStudentEditButton();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit last student name and email on current page and check successful message")
+    public void editLastStudentNameAndEmailOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentEditButtonOnCurrentPage();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student name, email and gender and check successful message")
+    public void editFirstStudentNameEmailAndGender() {
+        allStudentsPage.waitAndClickOnFirstStudentEditButton();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.waitAndEditGender(OTHER);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
+    }
+
+    @Test(description = "Edit first student name, email and gender on current page and check successful message")
+    public void editLastStudentNameEmailAndGenderOnCurrentPage() {
+        allStudentsPage.waitAndClickOnLastStudentEditButtonOnCurrentPage();
+
+        String name = dataFaker.name().firstName();
+        String email = dataFaker.internet().emailAddress();
+        editStudentPage.waitAndEditValueForNameField(name);
+        editStudentPage.waitAndEditValueForEmailField(email);
+        editStudentPage.waitAndEditGender(OTHER);
+        editStudentPage.clickOnSubmitButton();
+
+        assertEquals(notifications.getMessageFromNotification(), STUDENT_UPDATE_WAS_SUCCESSFUL);
+        assertEquals(notifications.getDescriptionFromNotification(), String.format(WAS_UPDATED, name));
+
+        notifications.getPopUpCloseButton().click();
+        assertTrue(driverWait.until(ExpectedConditions.invisibilityOf(notifications.getPopUpCloseButton())));
     }
 
     @Test()

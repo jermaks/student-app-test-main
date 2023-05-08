@@ -34,19 +34,35 @@ public class AllStudentsPage {
     @FindBy(how = How.XPATH, using = "//button[@class='ant-btn css-diro6f ant-btn-primary ant-btn-sm']/span")
     private WebElement yesButtonToDeleteStudent;
 
+    @FindBy(how = How.XPATH, using = "//div[@class='ant-btn-group css-diro6f']/label[last()]/span[2]")
+    private WebElement firstStudentEditButtonOnPage;
+
+    @FindBy(how = How.XPATH, using = "//tr[@class='ant-table-row ant-table-row-level-0'][last()]/td[last()]/div/label[2]/span[2]")
+    private WebElement lastStudentEditButtonOnPage;
+
     public void waitAndClickOnAddStudentButton() {
         webDriverWait.until(elementToBeClickable(addStudentButton));
         addStudentButton.click();
     }
 
-    public void waitAndClickOnFirstStudentDeleteButtonOnAnyPage() {
+    public void waitAndClickOnFirstStudentDeleteButton() {
         webDriverWait.until(elementToBeClickable(firstStudentDeleteButtonOnPage));
         firstStudentDeleteButtonOnPage.click();
     }
 
-    public void waitAndClickOnLastStudentDeleteButtonOnAnyPage() {
+    public void waitAndClickOnLastStudentDeleteButtonOnCurrentPage() {
         webDriverWait.until(elementToBeClickable(lastStudentDeleteButtonOnPage));
         lastStudentDeleteButtonOnPage.click();
+    }
+
+    public void waitAndClickOnFirstStudentEditButton() {
+        webDriverWait.until(elementToBeClickable(firstStudentEditButtonOnPage));
+        firstStudentEditButtonOnPage.click();
+    }
+
+    public void waitAndClickOnLastStudentEditButtonOnCurrentPage() {
+        webDriverWait.until(elementToBeClickable(lastStudentEditButtonOnPage));
+        lastStudentEditButtonOnPage.click();
     }
 
     public void clickYesToDeleteAStudent() {

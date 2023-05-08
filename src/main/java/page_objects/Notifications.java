@@ -30,6 +30,15 @@ public class Notifications {
     @FindBy(how = How.CLASS_NAME, using = "ant-notification-notice-close")
     private WebElement popUpCloseButton;
 
+    @FindBy(how = How.XPATH, using = "//div[@id='name_help']/div")
+    private WebElement nameFieldErrorMessage;
+
+    @FindBy(how = How.XPATH, using = "//div[@id='email_help']/div")
+    private WebElement emailFieldErrorMessage;
+
+    @FindBy(how = How.XPATH, using = "//div[@id='gender_help']/div")
+    private WebElement genderFieldErrorMessage;
+
     public WebElement getPopUpCloseButton() {
         return popUpCloseButton;
     }
@@ -42,5 +51,20 @@ public class Notifications {
     public String getDescriptionFromNotification() {
         webDriverWait.until(ExpectedConditions.visibilityOf(notificationDescriptionElement));
         return notificationDescriptionElement.getText();
+    }
+
+    public String getTextFromNameFieldErrorMessage() {
+        webDriverWait.until(ExpectedConditions.visibilityOf(nameFieldErrorMessage));
+        return nameFieldErrorMessage.getText();
+    }
+
+    public String getTextFromEmailFieldErrorMessage() {
+        webDriverWait.until(ExpectedConditions.visibilityOf(emailFieldErrorMessage));
+        return emailFieldErrorMessage.getText();
+    }
+
+    public String getTextFromGenderFieldErrorMessage() {
+        webDriverWait.until(ExpectedConditions.visibilityOf(genderFieldErrorMessage));
+        return genderFieldErrorMessage.getText();
     }
 }
